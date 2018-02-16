@@ -9,6 +9,16 @@ html, body {
 }
 
 #header {
-    height: 80px;
-    background-color: lightblue;
+    height: 52px;
+    background-color: black;
+}
+
+.sidebar-item {
+    padding-left: 10px;
+    margin-top: 10px;
+    height: 30px;
+}
+
+.sidebar-item:hover {
+    background-color: lightskyblue;
 }

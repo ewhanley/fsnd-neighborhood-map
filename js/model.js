@@ -1,4 +1,4 @@
-var locations = {
+var data = {
   map_center: {
     name: "Bozeman, MT",
     location: { lat: 45.676998, lng: -111.042934 },

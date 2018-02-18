@@ -4,27 +4,36 @@
 <head>
   <meta charset="UTF-8">
   <title>Neighborhood Map</title>
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
-  <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
-    <button class="w3-bar-item w3-button w3-large" data-bind="click: w3_close">Close &times;</button>
-    <div data-bind="foreach: initialList">
-      <div class="sidebar-item" data-bind="text: name, click: $parent.toggleSelection"></div>
+  <nav id="menu">
+    <header>
+      <h2>Menu</h2>
+      <div data-bind="foreach: initialList">
+        <div class="sidebar-item" data-bind="text: name, click: $parent.toggleSelection"></div>
+      </div>
+    </header>
+  </nav>
+  <main id="panel">
+    <header>
+      <button class="toggle-button">☰</button>
+    </header>
+    <div id="map-container">
+      <div id="map"></div>
     </div>
-  </div>
-  <div id="header">
-    <button id="openNav" class="w3-button w3-black w3-xlarge" data-bind="click: w3_open">&#9776;</button>
-  </div>
+  </main>
 
-  <div id="map"></div>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjQPtui4scb0Ip9PLymfXy1Zs_RqqOkNw&v=3&callback=initApp"></script>
+
   <script src="js/lib/knockout-3.4.2.js"></script>
-  <script src="js/model.js"></script>
+  <script src="js/lib/slideout.js"></script>
   <script src="js/app.js"></script>
-  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjQPtui4scb0Ip9PLymfXy1Zs_RqqOkNw&v=3&callback=initApp"></script>
+
+
+
 </body>
 
 </html>

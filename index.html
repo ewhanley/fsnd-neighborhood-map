@@ -5,21 +5,26 @@
   <meta charset="UTF-8">
   <title>Neighborhood Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+  <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
   <nav id="menu">
-    <header>
-      <h2>Menu</h2>
-      <div data-bind="foreach: initialList">
-        <div class="sidebar-item" data-bind="text: name, click: $parent.toggleSelection"></div>
-      </div>
+    <header class="menu-header">
+      <h1>Missoula Breweries</h1>
     </header>
+    <label for="textInput">Filter Locations:</label>
+    </br>
+    <input id="filterInput" size="32" data-bind="textInput: filter" placeholder="Start typing..." />
+    <ul data-bind="foreach: filteredList">
+      <li class="menu-item" data-bind="text: name, click: $parent.toggleSelection"></li>
+    </ul>
   </nav>
-  <main id="panel">
-    <header>
-      <button class="toggle-button">☰</button>
+  <main id="panel" data-bind="style: { width: isSlideoutOpen() ? 'calc(100% - 310px)' : '100%' }">
+    <header class="page-header">
+      <button class="toggle-button" data-bind="click: openSlideout">☰</button>
     </header>
     <div id="map-container">
       <div id="map"></div>

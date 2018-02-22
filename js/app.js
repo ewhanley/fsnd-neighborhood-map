@@ -54,10 +54,10 @@ function createData() {
         else {
           console.log(brewery + " failed with status " + status);
         }
-        location.reload();
       });
     });
   }
+
 }
 
 function initMap() {
@@ -109,7 +109,7 @@ var Brewery = function (data) {
 
 
 var ViewModel = function () {
-  createData();
+  //createData();
   var self = this;
   self.initialList = ko.observableArray([]);
   self.filter = ko.observable('');
@@ -119,7 +119,7 @@ var ViewModel = function () {
 
   //geocodeLocation(map_center_name);
   //breweries.forEach(geocodeLocation);
-  initMap();
+
 
   var slideout = new Slideout({
     'panel': document.getElementById('panel'),
@@ -149,6 +149,7 @@ var ViewModel = function () {
 
 
   var data = JSON.parse(localStorage.getItem("brewery_data"));
+  console.log(Object.keys(data));
 
 
 
@@ -217,6 +218,10 @@ var ViewModel = function () {
   }
 };
 
-var initApp = function () {
+function initApp() {
+  createData();
+  initMap();
+  console.log(localStorage.brewery_data);
   ko.applyBindings(new ViewModel());
+
 };

@@ -98,6 +98,7 @@ var Brewery = function (data) {
   });
 
   this.marker.addListener('click', function () {
+    self.marker.setIcon(selected_icon);
     self.infoWindow.open(map, this);
   });
 
@@ -114,12 +115,6 @@ var ViewModel = function () {
   self.initialList = ko.observableArray([]);
   self.filter = ko.observable('');
   self.visibleMarkers = [];
-
-
-
-  //geocodeLocation(map_center_name);
-  //breweries.forEach(geocodeLocation);
-
 
   var slideout = new Slideout({
     'panel': document.getElementById('panel'),
@@ -141,17 +136,7 @@ var ViewModel = function () {
     map.setZoom(currentZoom);
   }
 
-  // document.querySelector('.toggle-button').addEventListener('click', function () {
-  //   slideout.toggle();
-  //   console.log(slideout.isOpen());
-  //   console.log(!self.isSlideoutOpen());
-  // });
-
-
-  var data = JSON.parse(localStorage.getItem("brewery_data"));
-  console.log(Object.keys(data));
-
-
+  var data = brewery_data;
 
   Object.keys(data).forEach(function (key) {
     self.initialList.push(new Brewery(data[key]));
@@ -219,9 +204,7 @@ var ViewModel = function () {
 };
 
 function initApp() {
-  createData();
   initMap();
-  console.log(localStorage.brewery_data);
   ko.applyBindings(new ViewModel());
 
 };

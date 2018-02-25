@@ -1,3 +1,9 @@
+var center = { lat: 46.878718, lng: -113.996586 };
+var zoom = 15;
+var bound_extender = 0.005;
+var default_icon = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+var selected_icon = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+
 var brewery_data = {
   "Draught Works": {
     "name": "Draught Works",

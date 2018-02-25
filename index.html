@@ -22,9 +22,10 @@
       <li class="menu-item" data-bind="text: name, click: $parent.toggleSelection"></li>
     </ul>
   </nav>
-  <main id="panel" data-bind="style: { width: isSlideoutOpen() ? 'calc(100% - 310px)' : '100%' }">
+  <main id="panel">
+
     <header class="page-header">
-      <button class="toggle-button" data-bind="click: openSlideout">☰</button>
+      <button class="toggle-button" data-bind="click: openSlideout">&#9776;</button>
     </header>
     <div id="map-container">
       <div id="map"></div>
@@ -32,11 +33,13 @@
   </main>
 
 
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjQPtui4scb0Ip9PLymfXy1Zs_RqqOkNw&v=3&callback=initApp"></script>
+
   <script src="js/lib/knockout-3.4.2.js"></script>
   <script src="js/lib/slideout.js"></script>
+  <script src="js/lib/jquery-3.3.1.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjQPtui4scb0Ip9PLymfXy1Zs_RqqOkNw&v=3&callback=initApp"></script>
 
 
 

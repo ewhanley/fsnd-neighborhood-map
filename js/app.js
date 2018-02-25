@@ -41,7 +41,6 @@ function getVenueId(brewery) {
   };
   url += $.param(params);
   $.getJSON(url).done(function (data) {
-    console.log(data.response.venues[0].id);
     return data.response.venues[0].id;
   })
     .fail(function () {
@@ -70,6 +69,7 @@ function extendBoundsFitMap() {
   }
 }
 
+
 var slideout = new Slideout({
   'panel': document.getElementById('panel'),
   'menu': document.getElementById('menu'),
@@ -77,24 +77,17 @@ var slideout = new Slideout({
   'tolerance': 70
 });
 
-
-
-// https://stackoverflow.com/a/28350952
-function processSVData(data, status) {
-  if (status == google.maps.StreetViewStatus.OK) {
-    panorama.setPano(data.location.pano);
-    panorama.setPov({
-      heading: 270,
-      pitch: 0
-    });
-    panorama.setVisible(true);
-    console.log(status);
-  }
-  else {
-    panorama.setVisible(false);
-    console.log(status);
-  }
+function infoWindowContent(brewery) {
+  var contentString = '';
+  contentString += '<h3>' + brewery.name + '</h3>';
+  contentString += '<div id="pano' + brewery.index + '" class="pano"></div>';
+  contentString += '<p>' + brewery.fs_venue_id + '</p>';
+  return contentString;
 }
+
+
+
+
 
 var Brewery = function (data, index) {
   var self = this;
@@ -102,6 +95,7 @@ var Brewery = function (data, index) {
   self.name = data.name;
   self.location = data.location;
   self.place_id = data.place_id;
+  self.fs_venue_id = getVenueId(self);
   self.marker = new google.maps.Marker({
     map: map,
     visible: true,
@@ -111,23 +105,18 @@ var Brewery = function (data, index) {
     animation: google.maps.Animation.DROP
   });
 
-  self.infoWindow = new google.maps.InfoWindow({
-    content: '<h3>' + this.name + '</h3><div id="pano' + index + '"class="pano">There is no Street View available for this location.</div>'
-  });
-
-  self.fs_venue_id = getVenueId(self);
 
 
-  self.marker.addListener('click', function () {
-    self.marker.setIcon(selected_icon);
-    self.infoWindow.open(map, this);
-    panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + self.index));
-    sv.getPanoramaByLocation(self.location, 200, processSVData);
-  });
 
-  self.infoWindow.addListener('closeclick', function () {
-    self.marker.setIcon(default_icon);
-  });
+  self.infoWindow = new google.maps.InfoWindow();
+
+
+
+
+
+
+
+
 };
 
 
@@ -139,9 +128,43 @@ var ViewModel = function () {
   self.visibleMarkers = ko.observableArray([]);
   self.isSlideoutOpen = ko.observable(slideout.isOpen());
 
+  // Construct brewery objects
   Object.keys(brewery_data).forEach(function (key, index) {
     self.initialList().push(new Brewery(brewery_data[key], index));
   });
+
+
+
+  // Assign click listenders for each brewery that update markers and Street View panos
+  self.initialList().forEach(function (brewery) {
+    brewery.marker.addListener('click', function () {
+      brewery.marker.setIcon(selected_icon);
+      brewery.infoWindow.setContent(infoWindowContent(brewery));
+      brewery.infoWindow.open(map, this);
+      brewery.panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + brewery.index));
+      sv.getPanoramaByLocation(brewery.location, 200, function (data, status) {
+        if (status === 'OK') {
+          brewery.panorama.setPano(data.location.pano);
+          console.log(data);
+          brewery.panorama.setPov({
+            heading: google.maps.geometry.spherical.computeHeading(data.location.latLng, new google.maps.LatLng(brewery.location)),
+            pitch: 0
+          });
+        }
+        else {
+          brewery.panorama.setVisible(false);
+          document.getElementById('pano' + brewery.index).innerHTML = 'Street View data not found for this location.';
+        }
+      });
+    });
+
+    brewery.infoWindow.addListener('closeclick', function () {
+      brewery.marker.setIcon(default_icon);
+    });
+
+
+
+  })
 
   self.openSlideout = function () {
     slideout.toggle();
@@ -188,13 +211,28 @@ var ViewModel = function () {
   self.selectedBrewery = ko.observable(self.filteredList()[0]);
 
   self.toggleSelection = function () {
+    // Clear infoWindow and reset marker to default for previous selection
     self.selectedBrewery().infoWindow.setMap(null);
     self.selectedBrewery().marker.setIcon(default_icon);
+
+    // Update selected brewery and open its infoWindow
     self.selectedBrewery(this);
     self.selectedBrewery().marker.setIcon(selected_icon);
     self.selectedBrewery().infoWindow.open(map, this.marker);
-    panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + this.index));
-    sv.getPanoramaByLocation(self.selectedBrewery().location, 200, processSVData);
+    self.selectedBrewery().panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + self.selectedBrewery().index));
+    sv.getPanoramaByLocation(self.selectedBrewery().location, 200, function (data, status) {
+      if (status === 'OK') {
+        self.selectedBrewery().panorama.setPano(data.location.pano);
+        self.selectedBrewery().panorama.setPov({
+          heading: google.maps.geometry.spherical.computeHeading(data.location.latLng, new google.maps.LatLng(self.selectedBrewery().location)),
+          pitch: 0
+        });
+      }
+      else {
+        self.selectedBrewery().panorama.setVisible(false);
+        document.getElementById('pano' + self.selectedBrewery().index).innerHTML = 'Street View data not found for this location.';
+      }
+    });
   }
 
 

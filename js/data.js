@@ -3,6 +3,9 @@ var zoom = 15;
 var bound_extender = 0.005;
 var default_icon = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
 var selected_icon = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+var panorama_options = {
+  addressControl: false
+};
 
 var brewery_data = {
   "Draught Works": {

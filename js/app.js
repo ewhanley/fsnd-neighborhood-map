@@ -60,28 +60,23 @@ var slideout = new Slideout({
   'tolerance': 70
 });
 
-function infoWindowContent(brewery) {
+function infoWindowSVContent(brewery) {
   var contentString = '';
   contentString += '<h3>' + brewery.name + '</h3>';
   contentString += '<div id="pano' + brewery.index + '" class="pano"></div>';
+  contentString += '<div id="fs' + brewery.index + '"class="fs-info"></div>';
   return contentString;
 }
 
-async function getVenueId(brewery) {
-  var url = 'https://api.foursquare.com/v2/venues/search?';
-  var params = {
-    ll: brewery.location.lat + ',' + brewery.location.lng,
-    name: brewery.name,
-    intent: 'match',
-    client_id: fs_client_id,
-    client_secret: fs_client_secret,
-    v: '20180201'
-  };
-  url += $.param(params);
-  let result = await $.getJSON(url);
-  console.log(result);
-  brewery.async_venue_id = result;
+function infoWindowFSContent(data) {
+  var venue_data = data.response.venue;
+  var contentString = '';
+  contentString += '<img width="200px" src="img/Powered-by-Foursquare-full-color-300.png">';
+  contentString += '<span>Rating: ' + '<span class="rating" style="color:#' + venue_data.ratingColor + '">' + venue_data.rating + '</span></span>'
+  return contentString;
 }
+
+
 
 
 
@@ -105,7 +100,7 @@ var Brewery = function (data, index) {
     animation: google.maps.Animation.DROP
   });
   self.infoWindow = new google.maps.InfoWindow();
-  self.infoWindow.setContent(infoWindowContent(self));
+  //self.infoWindow.setContent(infoWindowSVContent(self));
 };
 
 function setPano(brewery) {
@@ -124,7 +119,33 @@ function setPano(brewery) {
   });
 }
 
-
+function getFourSquareData(brewery) {
+  var url = 'https://api.foursquare.com/v2/venues/search?';
+  var params = {
+    ll: brewery.location.lat + ',' + brewery.location.lng,
+    name: brewery.name,
+    intent: 'match',
+    client_id: fs_client_id,
+    client_secret: fs_client_secret,
+    v: '20180201'
+  };
+  url += $.param(params);
+  var venueId = $.getJSON(url);
+  var venueDetails = venueId.then(function (data) {
+    url = 'https://api.foursquare.com/v2/venues/' + data.response.venues[0].id + '?';
+    params = {
+      client_id: fs_client_id,
+      client_secret: fs_client_secret,
+      v: '20180201'
+    }
+    url += $.param(params);
+    return $.getJSON(url);
+  });
+  venueDetails.done(function (data) {
+    console.log(data);
+    document.getElementById('fs' + brewery.index).innerHTML = infoWindowFSContent(data);
+  });
+}
 
 
 
@@ -146,11 +167,19 @@ var ViewModel = function () {
   self.initialList().forEach(function (brewery) {
     brewery.marker.addListener('click', function () {
       brewery.marker.setIcon(selected_icon);
-      brewery.infoWindow.setContent(infoWindowContent(brewery));
-
+      brewery.infoWindow.setContent(infoWindowSVContent(brewery));
       brewery.infoWindow.open(map, this);
+      console.log(brewery.infoWindow.getContent);
+      getFourSquareData(brewery);
+
+
+
+
       brewery.panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + brewery.index), panorama_options);
+
       setPano(brewery);
+      console.log(brewery.infoWindow.getContent());
+
     });
 
     brewery.infoWindow.addListener('closeclick', function () {
@@ -213,7 +242,7 @@ var ViewModel = function () {
     // Update selected brewery and open its infoWindow
     self.selectedBrewery(this);
     self.selectedBrewery().marker.setIcon(selected_icon);
-    self.selectedBrewery().infoWindow.setContent(infoWindowContent(self.selectedBrewery()));
+    self.selectedBrewery().infoWindow.setContent(infoWindowSVContent(self.selectedBrewery()));
     self.selectedBrewery().infoWindow.open(map, this.marker);
     self.selectedBrewery().panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + self.selectedBrewery().index));
     setPano(self.selectedBrewery());

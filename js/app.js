@@ -71,8 +71,10 @@ function infoWindowSVContent(brewery) {
 function infoWindowFSContent(data) {
   var venue_data = data.response.venue;
   var contentString = '';
+  contentString += '<div class="fs-details"><div class="score-box" style="background-color:#' + venue_data.ratingColor + '">' + venue_data.rating + '</div>';
+  contentString += '<div class="price-box">' + '$'.repeat(venue_data.price.tier) + '</div></div>';
+  contentString += '<a class="tip" target="_blank" href="' + venue_data.tips.groups[0].items[0].canonicalUrl + '">' + venue_data.tips.groups[0].items[0].text + '</a>';
   contentString += '<img width="200px" src="img/Powered-by-Foursquare-full-color-300.png">';
-  contentString += '<span>Rating: ' + '<span class="rating" style="color:#' + venue_data.ratingColor + '">' + venue_data.rating + '</span></span>'
   return contentString;
 }
 

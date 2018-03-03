@@ -72,9 +72,10 @@ function infoWindowFSContent(data) {
   var venue_data = data.response.venue;
   var contentString = '';
   contentString += '<div class="fs-details"><div class="score-box" style="background-color:#' + venue_data.ratingColor + '">' + venue_data.rating + '</div>';
-  contentString += '<div class="price-box">' + '$'.repeat(venue_data.price.tier) + '</div></div>';
+  contentString += '<div class="price-box">' + '$'.repeat(venue_data.price.tier) + '</div>';
+  contentString += '<div class="fs-logo"><a target="_blank" href="https://foursquare.com/"><img width="auto" height="30px" src="img/Powered-by-Foursquare-full-color-300.png"></a></div></div>';
+  contentString += 'Top Tip:'
   contentString += '<a class="tip" target="_blank" href="' + venue_data.tips.groups[0].items[0].canonicalUrl + '">' + venue_data.tips.groups[0].items[0].text + '</a>';
-  contentString += '<img width="200px" src="img/Powered-by-Foursquare-full-color-300.png">';
   return contentString;
 }
 
@@ -146,6 +147,9 @@ function getFourSquareData(brewery) {
   venueDetails.done(function (data) {
     console.log(data);
     document.getElementById('fs' + brewery.index).innerHTML = infoWindowFSContent(data);
+  }).fail(function () {
+    console.log("failed to get data from foursquare");
+    document.getElementById('fs' + brewery.index).innerHTML = '<div class="fs-fail">Foursquare data not found for this location.</div>';
   });
 }
 
@@ -164,39 +168,6 @@ var ViewModel = function () {
     self.initialList().push(new Brewery(brewery_data[key], index));
   });
 
-
-  // Assign click listenders for each brewery that update markers and Street View panos
-  self.initialList().forEach(function (brewery) {
-    brewery.marker.addListener('click', function () {
-      brewery.marker.setIcon(selected_icon);
-      brewery.infoWindow.setContent(infoWindowSVContent(brewery));
-      brewery.infoWindow.open(map, this);
-      console.log(brewery.infoWindow.getContent);
-      getFourSquareData(brewery);
-
-
-
-
-      brewery.panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + brewery.index), panorama_options);
-
-      setPano(brewery);
-      console.log(brewery.infoWindow.getContent());
-
-    });
-
-    brewery.infoWindow.addListener('closeclick', function () {
-      brewery.marker.setIcon(default_icon);
-    });
-
-
-
-  })
-
-  self.openSlideout = function () {
-    slideout.toggle();
-    self.isSlideoutOpen(slideout.isOpen());
-  }
-
   self.toggleMarkers = function (filtered) {
     self.initialList().forEach(function (brewery) {
       filtered.includes(brewery) ? brewery.marker.setVisible(true) : brewery.marker.setVisible(false);
@@ -211,6 +182,8 @@ var ViewModel = function () {
       }
     });
   }
+
+
 
   self.filteredList = ko.computed(function () {
     var filtered = self.initialList().filter(function (brewery) {
@@ -236,16 +209,40 @@ var ViewModel = function () {
 
   self.selectedBrewery = ko.observable(self.filteredList()[0]);
 
-  self.toggleSelection = function () {
+
+  // Assign click listenders for each brewery that update markers and Street View panos
+  self.initialList().forEach(function (brewery) {
+    brewery.marker.addListener('click', function () {
+
+      console.log(brewery);
+      self.toggleSelection(brewery);
+    });
+
+    brewery.infoWindow.addListener('closeclick', function () {
+      brewery.marker.setIcon(default_icon);
+    });
+  })
+
+  self.openSlideout = function () {
+    slideout.toggle();
+    self.isSlideoutOpen(slideout.isOpen());
+  }
+
+
+
+
+
+  self.toggleSelection = function (brewery) {
     // Clear infoWindow and reset marker to default for previous selection
-    self.selectedBrewery().infoWindow.setMap(null);
+    self.selectedBrewery().infoWindow.close();
     self.selectedBrewery().marker.setIcon(default_icon);
 
     // Update selected brewery and open its infoWindow
-    self.selectedBrewery(this);
+    self.selectedBrewery(brewery);
+    getFourSquareData(brewery);
     self.selectedBrewery().marker.setIcon(selected_icon);
     self.selectedBrewery().infoWindow.setContent(infoWindowSVContent(self.selectedBrewery()));
-    self.selectedBrewery().infoWindow.open(map, this.marker);
+    self.selectedBrewery().infoWindow.open(map, brewery.marker);
     self.selectedBrewery().panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + self.selectedBrewery().index));
     setPano(self.selectedBrewery());
   }

@@ -66,12 +66,16 @@ body {
     border-radius: 0 0 5px 5px;
     display: flex;
     flex-direction: column;
-    width: 400px;
+    max-width: 400px;
+    height: 120px;
   }
 
   .fs-details {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
 
   .score-box {
@@ -100,7 +104,28 @@ body {
   }
 
   .tip {
+    text-decoration: none;
     font-style: italic;
+    color: black;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .tip:hover {
+    text-decoration: underline;
+  }
+
+  .fs-logo {
+    text-align: right;
+    margin-left: 10px;
+  }
+
+  .fs-fail {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   ul {

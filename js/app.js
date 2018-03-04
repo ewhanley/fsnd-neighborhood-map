@@ -1,5 +1,6 @@
 var map;
 var sv;
+var initBounds;
 var bounds;
 const fs_client_id = 'T20SKUKOMVZAPRO0UZ1ARLXY2QDSJXJSDDZXHRJFI0ZMGSFP';
 const fs_client_secret = 'Z3IVG53TX5TNZSX1HF0EFQDNV0UPQCFKUUS1LNNGLXA4DKMP';
@@ -21,6 +22,8 @@ function initMap() {
 
   sv = new google.maps.StreetViewService();
   bounds = new google.maps.LatLngBounds(null);
+  initBounds = new google.maps.LatLngBounds(null);
+
 
   // This ensures that the map stays centered wherever the user last centered it.
   // Solution found here: https://ao.gl/keep-google-map-v3-centered-when-browser-is-resized/
@@ -32,12 +35,15 @@ function initMap() {
 
 
 function recenterZoomMap() {
+  console.log("recenterZoomMap");
   var currentCenter = map.getCenter();
   var currentZoom = map.getZoom();
   google.maps.event.trigger(map, 'resize');
   map.setCenter(currentCenter);
   map.setZoom(currentZoom);
 }
+
+
 
 function extendBoundsFitMap() {
   if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
@@ -57,14 +63,17 @@ var slideout = new Slideout({
   'panel': document.getElementById('panel'),
   'menu': document.getElementById('menu'),
   'padding': 310,
-  'tolerance': 70
+  'tolerance': 70,
+  'touch': false
 });
 
 function infoWindowSVContent(brewery) {
   var contentString = '';
-  contentString += '<h3>' + brewery.name + '</h3>';
+  contentString += '<h3 id="name">' + brewery.name + '</h3>';
+  contentString += '<div id="info-box">';
   contentString += '<div id="pano' + brewery.index + '" class="pano"></div>';
   contentString += '<div id="fs' + brewery.index + '"class="fs-info"></div>';
+  contentString += '</div>';
   return contentString;
 }
 
@@ -74,8 +83,10 @@ function infoWindowFSContent(data) {
   contentString += '<div class="fs-details"><div class="score-box" style="background-color:#' + venue_data.ratingColor + '">' + venue_data.rating + '</div>';
   contentString += '<div class="price-box">' + '$'.repeat(venue_data.price.tier) + '</div>';
   contentString += '<div class="fs-logo"><a target="_blank" href="https://foursquare.com/"><img width="auto" height="30px" src="img/Powered-by-Foursquare-full-color-300.png"></a></div></div>';
-  contentString += 'Top Tip:'
+  contentString += '<p class="cust-say">Customers say:</p>';
+  contentString += '<div class="quote-box">'
   contentString += '<a class="tip" target="_blank" href="' + venue_data.tips.groups[0].items[0].canonicalUrl + '">' + venue_data.tips.groups[0].items[0].text + '</a>';
+  contentString += '</div>';
   return contentString;
 }
 
@@ -100,7 +111,8 @@ var Brewery = function (data, index) {
     position: data.location,
     title: data.name,
     icon: default_icon,
-    animation: google.maps.Animation.DROP
+    animation: google.maps.Animation.DROP,
+    optimized: false
   });
   self.infoWindow = new google.maps.InfoWindow();
   //self.infoWindow.setContent(infoWindowSVContent(self));
@@ -147,6 +159,7 @@ function getFourSquareData(brewery) {
   venueDetails.done(function (data) {
     console.log(data);
     document.getElementById('fs' + brewery.index).innerHTML = infoWindowFSContent(data);
+    document.getElementById('name').innerHTML = '<a href="' + data.response.venue.url + '"><h3>' + brewery.name + '</h3></a>';
   }).fail(function () {
     console.log("failed to get data from foursquare");
     document.getElementById('fs' + brewery.index).innerHTML = '<div class="fs-fail">Foursquare data not found for this location.</div>';
@@ -161,12 +174,19 @@ var ViewModel = function () {
   self.initialList = ko.observableArray([]);
   self.filter = ko.observable('');
   self.visibleMarkers = ko.observableArray([]);
-  self.isSlideoutOpen = ko.observable(slideout.isOpen());
 
   // Construct brewery objects
   Object.keys(brewery_data).forEach(function (key, index) {
     self.initialList().push(new Brewery(brewery_data[key], index));
   });
+
+  self.initialList().forEach(function (brewery) {
+    initBounds.extend(brewery.marker.getPosition());
+  });
+
+
+
+
 
   self.toggleMarkers = function (filtered) {
     self.initialList().forEach(function (brewery) {
@@ -225,8 +245,22 @@ var ViewModel = function () {
 
   self.openSlideout = function () {
     slideout.toggle();
-    self.isSlideoutOpen(slideout.isOpen());
   }
+
+  self.resetMap = function resetMap() {
+    console.log(zoom);
+    console.log(center);
+    console.log(map.getBounds());
+    console.log(initBounds);
+    map.setZoom(zoom);
+    map.setCenter(center);
+    map.fitBounds(initBounds);
+    console.log(map.getBounds());
+
+
+  }
+
+
 
 
 
@@ -241,6 +275,8 @@ var ViewModel = function () {
     self.selectedBrewery(brewery);
     getFourSquareData(brewery);
     self.selectedBrewery().marker.setIcon(selected_icon);
+    self.selectedBrewery().marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function () { self.selectedBrewery().marker.setAnimation(null); }, 1000);
     self.selectedBrewery().infoWindow.setContent(infoWindowSVContent(self.selectedBrewery()));
     self.selectedBrewery().infoWindow.open(map, brewery.marker);
     self.selectedBrewery().panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + self.selectedBrewery().index));

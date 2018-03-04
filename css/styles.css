@@ -7,6 +7,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
   }
 
 body {
@@ -23,12 +24,12 @@ body {
 
   #map-container {
       width: 100%;
-      height: calc(100% - 20px);
+      height: calc(100% - 30px);
       position: relative;
   }
 
   .page-header {
-      height: 29px;
+      height: 30px;
       width: 100%;
       background-color: #B8D8D8;
       position: relative;
@@ -67,7 +68,7 @@ body {
     display: flex;
     flex-direction: column;
     max-width: 400px;
-    height: 120px;
+    min-height: 120px;
   }
 
   .fs-details {
@@ -76,6 +77,7 @@ body {
     align-items: center;
     margin-top: 5px;
     margin-bottom: 5px;
+    width: 100%;
   }
 
   .score-box {
@@ -84,12 +86,11 @@ body {
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 5px;
+    border-radius: 5px 0 0 5px;
     color: white;
     font-size: 2em;
     font-weight: 400;
     padding: 5px;
-    margin-right: 5px;
   }
 
   .price-box {
@@ -101,14 +102,24 @@ body {
     font-size: 2em;
     font-weight: 400;
     padding: 5px;
+    background-color: gray;
+  }
+
+  .cust-say {
+    font-size: 1.2em;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .quote-box {
+    background-color: #EEF5DB;
+    padding: 5px;
   }
 
   .tip {
     text-decoration: none;
     font-style: italic;
     color: black;
-    padding-left: 5px;
-    padding-right: 5px;
   }
 
   .tip:hover {
@@ -116,8 +127,14 @@ body {
   }
 
   .fs-logo {
-    text-align: right;
-    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #B8D8D8;
+    height: 40px;
+    width: 100%;
+    border-radius: 0 5px 5px 0;
+    padding: 5px;
   }
 
   .fs-fail {
@@ -126,6 +143,25 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  #recenter-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 5;
+    background-color: #fff;
+    padding: 8px;
+    text-align: center;
+    border-radius: 2px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+    color: black;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  #recenter-btn:hover {
+    background-color: rgb(235, 235, 235);
   }
 
   ul {
@@ -181,3 +217,41 @@ body {
     display: block;
     width: 300px;
   }
+
+  #info-box {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media only screen and (max-width: 400px) {
+    .pano {
+      width: 200px;
+      height: 150px;
+    }
+
+    .fs-details {
+      flex-wrap: wrap;
+    }
+
+    
+  }
+
+  @media only screen and (min-width: 401px) and (max-width: 960px) {
+    .pano {
+      width: 200px;
+      height: 150px;
+    }
+    #info-box {
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 400px;
+    }
+
+    .fs-details {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+  }
+
+  

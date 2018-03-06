@@ -192,10 +192,11 @@ var ViewModel = function () {
       venueDetails.done(function (data) {
         console.log(data);
         brewery.rating = data.response.venue.rating;
+        $('.overlay').hide();
 
       }).fail(function () {
         console.log("failed to get data from foursquare");
-        document.getElementById('fs' + brewery.index).innerHTML = '<div class="fs-fail">Foursquare data not found for this location.</div>';
+        $('.overlay').hide();
       });
     })(i);
   }
@@ -226,6 +227,7 @@ var ViewModel = function () {
       if (!isInfoWindowLoaded) {
         ko.applyBindings(self, $("#info-window")[0]);
         isInfoWindowLoaded = true;
+        console.log(isInfoWindowLoaded);
       }
     });
 

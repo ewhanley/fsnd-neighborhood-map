@@ -1,7 +1,9 @@
 var map;
+var panorama;
 var sv;
 var initBounds;
 var bounds;
+var default_icon;
 const fs_client_id = 'T20SKUKOMVZAPRO0UZ1ARLXY2QDSJXJSDDZXHRJFI0ZMGSFP';
 const fs_client_secret = 'Z3IVG53TX5TNZSX1HF0EFQDNV0UPQCFKUUS1LNNGLXA4DKMP';
 
@@ -23,6 +25,15 @@ function initMap() {
   sv = new google.maps.StreetViewService();
   bounds = new google.maps.LatLngBounds(null);
   initBounds = new google.maps.LatLngBounds(null);
+
+  default_icon = {
+    url: "img/blue-dot.png", // url
+    scaledSize: new google.maps.Size(26, 26)
+  };
+
+  selected_icon = {
+    url: "img/yellow-dot.png"
+  }
 
 
   // This ensures that the map stays centered wherever the user last centered it.
@@ -67,40 +78,12 @@ var slideout = new Slideout({
   'touch': false
 });
 
-function infoWindowSVContent(brewery) {
-  var contentString = '';
-  contentString += '<h3 id="name">' + brewery.name + '</h3>';
-  contentString += '<div id="info-box">';
-  contentString += '<div id="pano' + brewery.index + '" class="pano"></div>';
-  contentString += '<div id="fs' + brewery.index + '"class="fs-info"></div>';
-  contentString += '</div>';
-  return contentString;
-}
-
-function infoWindowFSContent(data) {
-  var venue_data = data.response.venue;
-  var contentString = '';
-  contentString += '<div class="fs-details"><div class="score-box" style="background-color:#' + venue_data.ratingColor + '">' + venue_data.rating + '</div>';
-  contentString += '<div class="price-box">' + '$'.repeat(venue_data.price.tier) + '</div>';
-  contentString += '<div class="fs-logo"><a target="_blank" href="https://foursquare.com/"><img width="auto" height="30px" src="img/Powered-by-Foursquare-full-color-300.png"></a></div></div>';
-  contentString += '<p class="cust-say">Customers say:</p>';
-  contentString += '<div class="quote-box">'
-  contentString += '<a class="tip" target="_blank" href="' + venue_data.tips.groups[0].items[0].canonicalUrl + '">' + venue_data.tips.groups[0].items[0].text + '</a>';
-  contentString += '</div>';
-  return contentString;
-}
-
-
-
-
-
-
-
-
-
 
 var Brewery = function (data, index) {
   var self = this;
+  self.rating = 9.9;
+  self.price = '$$$';
+  self.tip = 'go here';
   self.index = index;
   self.name = data.name;
   self.location = data.location;
@@ -114,22 +97,21 @@ var Brewery = function (data, index) {
     animation: google.maps.Animation.DROP,
     optimized: false
   });
-  self.infoWindow = new google.maps.InfoWindow();
-  //self.infoWindow.setContent(infoWindowSVContent(self));
 };
 
 function setPano(brewery) {
   sv.getPanoramaByLocation(brewery.location, 200, function (data, status) {
     if (status === 'OK') {
-      brewery.panorama.setPano(data.location.pano);
-      brewery.panorama.setPov({
+      panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'));
+      panorama.setPano(data.location.pano);
+      panorama.setPov({
         heading: google.maps.geometry.spherical.computeHeading(data.location.latLng, new google.maps.LatLng(brewery.location)),
         pitch: 0
       });
     }
     else {
       brewery.panorama.setVisible(false);
-      document.getElementById('pano' + brewery.index).innerHTML = 'Street View data not found for this location.';
+      document.getElementById('pano').innerHTML = 'Street View data not found for this location.';
     }
   });
 }
@@ -158,13 +140,15 @@ function getFourSquareData(brewery) {
   });
   venueDetails.done(function (data) {
     console.log(data);
-    document.getElementById('fs' + brewery.index).innerHTML = infoWindowFSContent(data);
-    document.getElementById('name').innerHTML = '<a href="' + data.response.venue.url + '"><h3>' + brewery.name + '</h3></a>';
+    brewery.rating = data.response.venue.rating;
+
   }).fail(function () {
     console.log("failed to get data from foursquare");
     document.getElementById('fs' + brewery.index).innerHTML = '<div class="fs-fail">Foursquare data not found for this location.</div>';
   });
 }
+
+
 
 
 
@@ -180,9 +164,78 @@ var ViewModel = function () {
     self.initialList().push(new Brewery(brewery_data[key], index));
   });
 
+  for (var i = 0; i < self.initialList().length; i++) {
+    (function (i) { // protects i in an immediately called function
+      var brewery = self.initialList()[i];
+      console.log(brewery);
+      var url = 'https://api.foursquare.com/v2/venues/search?';
+      var params = {
+        ll: brewery.location.lat + ',' + brewery.location.lng,
+        name: brewery.name,
+        intent: 'match',
+        client_id: fs_client_id,
+        client_secret: fs_client_secret,
+        v: '20180201'
+      };
+      url += $.param(params);
+      var venueId = $.getJSON(url);
+      var venueDetails = venueId.then(function (data) {
+        url = 'https://api.foursquare.com/v2/venues/' + data.response.venues[0].id + '?';
+        params = {
+          client_id: fs_client_id,
+          client_secret: fs_client_secret,
+          v: '20180201'
+        }
+        url += $.param(params);
+        return $.getJSON(url);
+      });
+      venueDetails.done(function (data) {
+        console.log(data);
+        brewery.rating = data.response.venue.rating;
+
+      }).fail(function () {
+        console.log("failed to get data from foursquare");
+        document.getElementById('fs' + brewery.index).innerHTML = '<div class="fs-fail">Foursquare data not found for this location.</div>';
+      });
+    })(i);
+  }
+
   self.initialList().forEach(function (brewery) {
     initBounds.extend(brewery.marker.getPosition());
   });
+
+
+
+  function infoWindowInitialize() {
+    var infoWindowHTML =
+      '<div id="info-window"' +
+      'data-bind="template: { name: \'info-window-template\', data: selectedBrewery }">' +
+      '</div>';
+
+    self.infoWindow = new google.maps.InfoWindow({
+      content: infoWindowHTML,
+      contextmenu: true
+    });
+    var isInfoWindowLoaded = false;
+
+    /*
+     * When the info window opens, bind it to Knockout.
+     * Only do this once.
+     */
+    google.maps.event.addListener(self.infoWindow, 'domready', function () {
+      if (!isInfoWindowLoaded) {
+        ko.applyBindings(self, $("#info-window")[0]);
+        isInfoWindowLoaded = true;
+      }
+    });
+
+    google.maps.event.addListener(self.infoWindow, 'closeclick', function () {
+      self.selectedBrewery().marker.setIcon(default_icon);
+    });
+  }
+  infoWindowInitialize();
+
+
 
 
 
@@ -197,7 +250,6 @@ var ViewModel = function () {
   self.toggleInfoWindows = function (filtered) {
     self.initialList().forEach(function (brewery) {
       if (!filtered.includes(brewery)) {
-        brewery.infoWindow.close();
         brewery.marker.setIcon(default_icon);
       }
     });
@@ -211,7 +263,6 @@ var ViewModel = function () {
     });
 
     self.toggleMarkers(filtered);
-    self.toggleInfoWindows(filtered);
 
     self.visibleMarkers([]);
     filtered.forEach(function (brewery) {
@@ -233,14 +284,10 @@ var ViewModel = function () {
   // Assign click listenders for each brewery that update markers and Street View panos
   self.initialList().forEach(function (brewery) {
     brewery.marker.addListener('click', function () {
-
-      console.log(brewery);
       self.toggleSelection(brewery);
     });
 
-    brewery.infoWindow.addListener('closeclick', function () {
-      brewery.marker.setIcon(default_icon);
-    });
+
   })
 
   self.openSlideout = function () {
@@ -248,46 +295,27 @@ var ViewModel = function () {
   }
 
   self.resetMap = function resetMap() {
-    console.log(zoom);
-    console.log(center);
-    console.log(map.getBounds());
-    console.log(initBounds);
     map.setZoom(zoom);
     map.setCenter(center);
     map.fitBounds(initBounds);
-    console.log(map.getBounds());
-
-
   }
-
-
-
-
-
 
 
   self.toggleSelection = function (brewery) {
     // Clear infoWindow and reset marker to default for previous selection
-    self.selectedBrewery().infoWindow.close();
     self.selectedBrewery().marker.setIcon(default_icon);
 
     // Update selected brewery and open its infoWindow
+    self.infoWindow.open(map, brewery.marker);
     self.selectedBrewery(brewery);
-    getFourSquareData(brewery);
     self.selectedBrewery().marker.setIcon(selected_icon);
     self.selectedBrewery().marker.setAnimation(google.maps.Animation.BOUNCE);
-    setTimeout(function () { self.selectedBrewery().marker.setAnimation(null); }, 1000);
-    self.selectedBrewery().infoWindow.setContent(infoWindowSVContent(self.selectedBrewery()));
-    self.selectedBrewery().infoWindow.open(map, brewery.marker);
-    self.selectedBrewery().panorama = new google.maps.StreetViewPanorama(document.getElementById('pano' + self.selectedBrewery().index));
+    setTimeout(function () { self.selectedBrewery().marker.setAnimation(null); }, 100);
     setPano(self.selectedBrewery());
   }
-
-
 };
 
 function initApp() {
   initMap();
   ko.applyBindings(new ViewModel());
-
 };

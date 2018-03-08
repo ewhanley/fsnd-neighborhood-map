@@ -81,9 +81,13 @@ var slideout = new Slideout({
 
 var Brewery = function (data, index) {
   var self = this;
-  self.rating = 9.9;
-  self.price = '$$$';
-  self.tip = 'go here';
+  self.rating = '';
+  self.rating_color = '';
+  self.price = '';
+  self.url = '';
+  self.tip = '';
+  self.tip_url = '';
+  self.fs_url = '';
   self.index = index;
   self.name = data.name;
   self.location = data.location;
@@ -190,8 +194,14 @@ var ViewModel = function () {
         return $.getJSON(url);
       });
       venueDetails.done(function (data) {
-        console.log(data);
-        brewery.rating = data.response.venue.rating;
+        var data = data.response.venue;
+        brewery.rating = data.rating;
+        brewery.price = data.price.currency.repeat(data.price.tier);
+        brewery.rating_color = '#' + data.ratingColor;
+        brewery.tip = '"' + data.tips.groups[0].items[0].text + '"';
+        brewery.tip_url = data.tips.groups[0].items[0].canonicalUrl;
+        brewery.fs_url = data.canonicalUrl;
+
         $('.overlay').hide();
 
       }).fail(function () {

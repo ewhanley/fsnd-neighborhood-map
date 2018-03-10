@@ -194,10 +194,12 @@ var ViewModel = function () {
         return $.getJSON(url);
       });
       venueDetails.done(function (data) {
+        console.log(data);
         var data = data.response.venue;
         brewery.rating = data.rating;
         brewery.price = data.price.currency.repeat(data.price.tier);
         brewery.rating_color = '#' + data.ratingColor;
+        brewery.url = data.url;
         brewery.tip = '"' + data.tips.groups[0].items[0].text + '"';
         brewery.tip_url = data.tips.groups[0].items[0].canonicalUrl;
         brewery.fs_url = data.canonicalUrl;
@@ -207,6 +209,9 @@ var ViewModel = function () {
       }).fail(function () {
         console.log("failed to get data from foursquare");
         $('.overlay').hide();
+        var saveData = JSON.parse(localStorage.saveData || null) || {};
+        console.log(new Date().getTime());
+        saveData.time = new Date().getTime();
       });
     })(i);
   }

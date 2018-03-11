@@ -135,12 +135,39 @@ body {
     width: auto;
   }
 
-  @media only screen and (max-width: 400px) {
+  @media only screen and (max-width: 450px) {
     .container {
-      width: 250px;
+      width: 260px;
+      grid-gap: 0.1rem;
     }
     .pano {
       height: 200px;
+    }
+  }
+
+  @media screen and (max-width: 767px) and (orientation: landscape) {
+    .container {
+      width: 350px;
+      height: auto;
+      grid-template-columns: 5fr 1fr;
+      grid-template-areas:
+      "header header"
+      "pano   rating"
+      "pano   price"
+      "tip    tip"
+      "logo   logo";
+    grid-gap: 0.5rem;
+    }
+    .pano {
+      height: 200px;
+    }
+
+    .fs-rating, .fs-price {
+      height: 100%;
+    }
+
+    .fs-img {
+      height: 50%;
     }
   }
 

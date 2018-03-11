@@ -5,7 +5,8 @@ var initBounds;
 var bounds;
 var default_icon;
 const fs_client_id = 'T20SKUKOMVZAPRO0UZ1ARLXY2QDSJXJSDDZXHRJFI0ZMGSFP';
-const fs_client_secret = 'Z3IVG53TX5TNZSX1HF0EFQDNV0UPQCFKUUS1LNNGLXA4DKMP';
+const fs_client_secret = 'HRJ0NJBBHWIQQV3J1QB32CEXRDDFBZDCD3OXP5UMMJBI0BRK';
+const fs_home = 'https://foursquare.com/';
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -81,13 +82,14 @@ var slideout = new Slideout({
 
 var Brewery = function (data, index) {
   var self = this;
-  self.rating = '';
+  self.rating = '9.9';
   self.rating_color = '';
-  self.price = '';
+  self.price = '$$$';
   self.url = '';
-  self.tip = '';
+  self.tip = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation';
   self.tip_url = '';
   self.fs_url = '';
+  self.fs_home = fs_home;
   self.index = index;
   self.name = data.name;
   self.location = data.location;

@@ -1,4 +1,12 @@
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Regular.ttf');
+}
 
+@font-face {
+  font-family: 'Pacifico';
+  src: url('../fonts/Pacifico-Regular.ttf');
+}
 
 
 
@@ -136,6 +144,9 @@ body {
   }
 
   @media only screen and (max-width: 450px) {
+    #recenter-btn {
+      background-color: #fff;
+    }
     .container {
       width: 260px;
       grid-gap: 0.1rem;
@@ -146,6 +157,9 @@ body {
   }
 
   @media screen and (max-width: 767px) and (orientation: landscape) {
+    #recenter-btn {
+      background-color: #fff;
+    }
     .container {
       width: 350px;
       height: auto;

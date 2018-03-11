@@ -1,3 +1,24 @@
+import ko from 'knockout';
+import $ from 'jquery';
+window.jQuery = $;
+window.$ = $;
+import Slideout from 'slideout';
+import './css/styles.css';
+import blue_icon from './img/blue-dot.png';
+import yellow_icon from './img/yellow-dot.png';
+import fs_logo from './img/Powered-by-Foursquare-full-color-300.png';
+import brewery_data from './data/data.json';
+
+var center = { lat: 46.878718, lng: -113.996586 };
+var zoom = 15;
+var bound_extender = 0.005;
+
+var selected_icon = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+var panorama_options = {
+  addressControl: false
+};
+
+
 var map;
 var panorama;
 var sv;
@@ -22,18 +43,19 @@ function initMap() {
       position: google.maps.ControlPosition.LEFT_BOTTOM
     }
   });
+  window.initMap = initMap;
 
   sv = new google.maps.StreetViewService();
   bounds = new google.maps.LatLngBounds(null);
   initBounds = new google.maps.LatLngBounds(null);
 
   default_icon = {
-    url: "img/blue-dot.png", // url
+    url: blue_icon, // url
     scaledSize: new google.maps.Size(26, 26)
   };
 
   selected_icon = {
-    url: "img/yellow-dot.png"
+    url: yellow_icon
   }
 
 
@@ -310,3 +332,4 @@ function initApp() {
   initMap();
   ko.applyBindings(new ViewModel());
 };
+window.initApp = initApp;

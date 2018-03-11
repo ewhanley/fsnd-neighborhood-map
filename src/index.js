@@ -53,7 +53,6 @@ function initMap() {
     url: yellow_icon
   }
 
-
   // This ensures that the map stays centered wherever the user last centered it.
   // Solution found here: https://ao.gl/keep-google-map-v3-centered-when-browser-is-resized/
   google.maps.event.addDomListener(window, 'resize', function () {
@@ -61,8 +60,7 @@ function initMap() {
   });
 }
 
-
-
+// Re-centers and sets zoom to values before window resize
 function recenterZoomMap() {
   console.log("recenterZoomMap");
   var currentCenter = map.getCenter();
@@ -72,8 +70,9 @@ function recenterZoomMap() {
   map.setZoom(currentZoom);
 }
 
-
-
+// In cases when filtering to a single marker, the map bounds result in a maximum
+// zoom. This function extends the bounds by a pre-configured distance 
+// (bound_extender var) and fits the map to the extended bounds.
 function extendBoundsFitMap() {
   if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
     var extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + bound_extender, bounds.getNorthEast().lng() + bound_extender);
@@ -87,7 +86,7 @@ function extendBoundsFitMap() {
   }
 }
 
-
+// Initialize slideout menu
 var slideout = new Slideout({
   'panel': document.getElementById('panel'),
   'menu': document.getElementById('menu'),
@@ -96,7 +95,7 @@ var slideout = new Slideout({
   'touch': false
 });
 
-
+// Brewery object model
 var Brewery = function (data, index) {
   var self = this;
   self.rating = '';
@@ -122,6 +121,9 @@ var Brewery = function (data, index) {
   });
 };
 
+// This function retries the nearest Google Steet View panorama for a given
+// location and updates the pano element with it. In the event of no response,
+// the pano element is updated to reflect this.
 function setPano(brewery) {
   sv.getPanoramaByLocation(brewery.location, 200, function (data, status) {
     if (status === 'OK') {

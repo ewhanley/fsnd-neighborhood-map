@@ -13,7 +13,8 @@ module.exports = {
         },
         plugins: [
                 new HtmlWebpackPlugin({
-                        template: 'src/index.html'
+                        template: 'src/index.html',
+                        favicon: 'src/img/favicon.ico'
                 }),
                 new CleanWebpackPlugin(['dist']),
                 new UglifyJSPlugin(),
@@ -21,6 +22,10 @@ module.exports = {
                         {
                                 from: 'src/img/Powered-by-Foursquare-full-color-300.png',
                                 to: 'Powered-by-Foursquare-full-color-300.png'
+                        },
+                        {
+                                from: 'src/img/slideout-toggle.svg',
+                                to: 'slideout-toggle.svg'
                         }
                 ])
         ],

@@ -24,6 +24,7 @@
       <div class="sk-circle12 sk-circle"></div>
     </div>
   </div>
+
   <nav id="menu">
     <header class="menu-header">
       <h1>Missoula Breweries</h1>
@@ -35,10 +36,11 @@
       <li class="menu-item" data-bind="text: name, click: $parent.toggleSelection"></li>
     </ul>
   </nav>
-  <main id="panel">
 
+  <main id="panel">
     <header class="page-header">
-      <button class="toggle-button" data-bind="click: openSlideout">&#9776;</button>
+      <img class="toggle-button" src='slideout-toggle.svg' data-bind="click: openSlideout">
+      <h2>Brewery Explorer</h2>
     </header>
     <div id="map-container">
       <div id="map"></div>
@@ -65,13 +67,8 @@
   </div>
   </script>
 
-
-
   <script src="./bundle.js"></script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjQPtui4scb0Ip9PLymfXy1Zs_RqqOkNw&v=3&callback=initApp"></script>
-
-
-
 
 </body>
 

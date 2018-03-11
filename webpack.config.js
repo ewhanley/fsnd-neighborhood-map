@@ -2,20 +2,27 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
         entry: './src/index.js',
         devtool: 'inline-source-map',
         devServer: {
-                contentBase: './dist',
-                port: 8081
+                contentBase: path.join(__dirname, 'dist'),
+                compress: true
         },
         plugins: [
                 new HtmlWebpackPlugin({
                         template: 'src/index.html'
                 }),
                 new CleanWebpackPlugin(['dist']),
-                new UglifyJSPlugin()
+                new UglifyJSPlugin(),
+                new CopyWebpackPlugin([
+                        {
+                                from: 'src/img/Powered-by-Foursquare-full-color-300.png',
+                                to: 'Powered-by-Foursquare-full-color-300.png'
+                        }
+                ])
         ],
         output: {
                 filename: 'bundle.js',

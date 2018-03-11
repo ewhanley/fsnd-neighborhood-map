@@ -13,18 +13,13 @@ var center = { lat: 46.878718, lng: -113.996586 };
 var zoom = 15;
 var bound_extender = 0.005;
 
-var selected_icon = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
-var panorama_options = {
-  addressControl: false
-};
-
-
 var map;
 var panorama;
 var sv;
 var initBounds;
 var bounds;
 var default_icon;
+var selected_icon;
 const fs_client_id = 'T20SKUKOMVZAPRO0UZ1ARLXY2QDSJXJSDDZXHRJFI0ZMGSFP';
 const fs_client_secret = 'HRJ0NJBBHWIQQV3J1QB32CEXRDDFBZDCD3OXP5UMMJBI0BRK';
 const fs_home = 'https://foursquare.com/';
@@ -104,11 +99,11 @@ var slideout = new Slideout({
 
 var Brewery = function (data, index) {
   var self = this;
-  self.rating = '9.9';
+  self.rating = '';
   self.rating_color = '';
-  self.price = '$$$';
+  self.price = '';
   self.url = '';
-  self.tip = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation';
+  self.tip = '';
   self.tip_url = '';
   self.fs_url = '';
   self.fs_home = fs_home;

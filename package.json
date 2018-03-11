@@ -18,7 +18,7 @@
     "url": "https://github.com/ewhanley/fsnd-neighborhood-map/issues"
   },
   "homepage": "https://github.com/ewhanley/fsnd-neighborhood-map#readme",
-  "description": "",
+  "description": "Neighborhood map application for full stack nanodegree project",
   "dependencies": {
     "jquery": "^3.3.1",
     "knockout": "^3.5.0-beta",

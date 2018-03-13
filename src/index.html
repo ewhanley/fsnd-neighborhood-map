@@ -51,17 +51,20 @@
   <script type="text/html" id="info-window-template">
   <div class="container">
     <h3 class="header" data-bind="text: name"></h3>
-    <div class="fs-rating" data-bind="style: { 'background-color': rating_color }">
-      <a target="_blank" data-bind="attr: { href: fs_url }, text: rating">--</a>
+    <div class="fs-rating" data-bind="style: { 'background-color': ratingColor }">
+      <a target="_blank" data-bind="attr: { href: fsUrl }, text: rating">--</a>
     </div>
     <div class="fs-price">
-      <a target="_blank" data-bind="attr: { href: fs_url }, text: price">--</a>
+      <a target="_blank" data-bind="attr: { href: fsUrl }, text: price">--</a>
     </div>
     <div id="pano" class="pano">pano</div>
     <div class="fs-tip">
-      <a target="_blank" data-bind="attr: {href: tip_url }, text: tip">-</a>
+      <!-- ko if: fsFail -->
+      <span class="fs-fail">We have encountered a problem retrieving data from Foursquare for this location.</span>
+      <!-- /ko -->
+      <a target="_blank" data-bind="attr: {href: tipUrl }, text: tip">-</a>
     </div>
-    <a target="_blank" data-bind="attr: {href: fs_home }">
+    <a target="_blank" data-bind="attr: {href: fsHomeUrl }">
     <div class="fs-logo"><img class='fs-img' src='Powered-by-Foursquare-full-color-300.png'></div>
     </a>
   </div>

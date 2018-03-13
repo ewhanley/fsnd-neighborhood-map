@@ -6,7 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
         entry: './src/index.js',
-        devtool: 'inline-source-map',
+        devtool: 'eval-source-map',
         devServer: {
                 contentBase: path.join(__dirname, 'dist'),
                 compress: true

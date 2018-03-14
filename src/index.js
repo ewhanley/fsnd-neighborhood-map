@@ -8,10 +8,15 @@ import blueIcon from './img/blue-dot.png';
 import yellowIcon from './img/yellow-dot.png';
 import fsLogo from './img/Powered-by-Foursquare-full-color-300.png';
 import breweryData from './data/data.json';
+/* Register initMap and initApp with window object so they have global
+scope for webpack build. */
+window.initMap = initMap;
+window.initApp = initApp;
 
 const numBreweries = Object.keys(breweryData).length;
 const center = { lat: 46.878718, lng: -113.996586 };
 const zoom = 15;
+// Used to extend bounds when extents
 const boundExtender = 0.005;
 
 let map;
@@ -39,7 +44,7 @@ function initMap() {
       position: google.maps.ControlPosition.LEFT_BOTTOM
     }
   });
-  window.initMap = initMap;
+
 
   sv = new google.maps.StreetViewService();
   bounds = new google.maps.LatLngBounds(null);
@@ -54,8 +59,9 @@ function initMap() {
     url: yellowIcon
   }
 
-  // This ensures that the map stays centered wherever the user last centered it.
-  // Solution found here: https://ao.gl/keep-google-map-v3-centered-when-browser-is-resized/
+  /* This ensures that the map stays centered wherever the user last centered
+  it. Solution found here:
+  https://ao.gl/keep-google-map-v3-centered-when-browser-is-resized/ */
   google.maps.event.addDomListener(window, 'resize', function () {
     recenterZoomMap();
   });
@@ -70,13 +76,18 @@ function recenterZoomMap() {
   map.setZoom(currentZoom);
 }
 
-// In cases when filtering to a single marker, the map bounds result in a maximum
-// zoom. This function extends the bounds by a pre-configured distance 
-// (boundExtender let) and fits the map to the extended bounds.
+/* In cases when filtering to a single marker, the map bounds result in a
+maximum zoom. This function extends the bounds by a pre-configured distance 
+(boundExtender let) and fits the map to the extended bounds. This solution was
+found here: https://stackoverflow.com/a/5345708 */
 function extendBoundsFitMap() {
   if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-    let extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + boundExtender, bounds.getNorthEast().lng() + boundExtender);
-    let extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - boundExtender, bounds.getNorthEast().lng() - boundExtender);
+    let extendPoint1 =
+      new google.maps.LatLng(bounds.getNorthEast().lat() + boundExtender,
+        bounds.getNorthEast().lng() + boundExtender);
+    let extendPoint2 =
+      new google.maps.LatLng(bounds.getNorthEast().lat() - boundExtender,
+        bounds.getNorthEast().lng() - boundExtender);
     bounds.extend(extendPoint1);
     bounds.extend(extendPoint2);
     map.fitBounds(bounds);
@@ -121,21 +132,25 @@ let Brewery = function (data) {
   });
 };
 
-// This function retrieves the nearest Google Steet View panorama for a given
-// location and updates the pano element with it. In the event of no response,
-// the pano element is updated to reflect accordingly.
+/* This function retrieves the nearest Google Steet View panorama for a given
+location and updates the pano element with it. In the event of no response,
+the pano element is updated to reflect accordingly. */
 function setPano(brewery) {
   sv.getPanoramaByLocation(brewery.location, 200, function (data, status) {
     if (status === 'OK') {
-      panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'));
+      panorama =
+        new google.maps.StreetViewPanorama(document.getElementById('pano'));
       panorama.setPano(data.location.pano);
       panorama.setPov({
-        heading: google.maps.geometry.spherical.computeHeading(data.location.latLng, new google.maps.LatLng(brewery.location)),
+        heading:
+          google.maps.geometry.spherical.computeHeading(data.location.latLng,
+            new google.maps.LatLng(brewery.location)),
         pitch: 0
       });
     }
     else {
-      document.getElementById('pano').innerHTML = 'Street View data not found for this location.';
+      document.getElementById('pano').innerHTML =
+        'Street View data not found for this location.';
     }
   });
 }
@@ -157,7 +172,8 @@ function getFourSquareData(brewery) {
   url += $.param(params);
   let venueId = $.getJSON(url);
   let venueDetails = venueId.then(function (data) {
-    url = 'https://api.foursquare.com/v2/venues/' + data.response.venues[0].id + '?';
+    url = 'https://api.foursquare.com/v2/venues/' +
+      data.response.venues[0].id + '?';
     params = {
       client_id: fsClientID,
       client_secret: fsClientSecret,
@@ -176,11 +192,13 @@ function getFourSquareData(brewery) {
     brewery.tipUrl = venueData.tips.groups[0].items[0].canonicalUrl;
     brewery.fsUrl = venueData.canonicalUrl;
   }).fail(function () {
-    console.log('Failed to get data for ' + brewery + ' from foursquare.');
+    console.log('Failed to get data for ' +
+      brewery.name +
+      ' from foursquare.');
     brewery.fsFail = true;
   }).always(function () {
-    // This clears the loading spinner overlay after the last request completes
-    // whether successful or not.
+    /* This clears the loading spinner overlay after the last request completes
+    whether successful or not. */
     requestCount--;
     if (requestCount == 0) {
       $('.overlay').hide();
@@ -214,7 +232,8 @@ let ViewModel = function () {
   function infoWindowInitialize() {
     let infoWindowHTML =
       '<div id="info-window"' +
-      'data-bind="template: { name: \'info-window-template\', data: selectedBrewery }">' +
+      'data-bind="template: ' +
+      '{ name: \'info-window-template\', data: selectedBrewery }">' +
       '</div>';
 
     self.infoWindow = new google.maps.InfoWindow({
@@ -223,10 +242,9 @@ let ViewModel = function () {
     });
     let isInfoWindowLoaded = Boolean(false);
 
-    /*
-     * When the info window opens, bind it to Knockout.
-     * Only do this once. Solution found here https://jsfiddle.net/SittingFox/nr8tr5oo/
-     */
+    /* When the info window opens, bind it to Knockout.
+    Only do this once. Solution found here:
+     https://jsfiddle.net/SittingFox/nr8tr5oo/ */
     google.maps.event.addListener(self.infoWindow, 'domready', function () {
       if (!isInfoWindowLoaded) {
         ko.applyBindings(self, $("#info-window")[0]);
@@ -240,10 +258,11 @@ let ViewModel = function () {
   }
   infoWindowInitialize();
 
-  // Function to oggle marker visibility when list is filtered
+  // Function to toggle marker visibility when list is filtered
   self.toggleMarkers = function (filtered) {
     self.initialList().forEach(function (brewery) {
-      filtered.includes(brewery) ? brewery.marker.setVisible(true) : brewery.marker.setVisible(false);
+      filtered.includes(brewery) ? brewery.marker.setVisible(true) :
+        brewery.marker.setVisible(false);
     });
   }
 
@@ -275,7 +294,7 @@ let ViewModel = function () {
 
   self.selectedBrewery = ko.observable(self.filteredList()[0]);
 
-  // Assign click listeners for each brewery that update markers and Street View panos
+  // Assign click listeners for each brewery
   self.initialList().forEach(function (brewery) {
     brewery.marker.addListener('click', function () {
       self.toggleSelection(brewery);
@@ -293,7 +312,7 @@ let ViewModel = function () {
   }
 
   self.toggleSelection = function (brewery) {
-    // Clear infoWindow and reset marker to default for previous selection
+    // Reset marker to default for previous selection
     self.selectedBrewery().marker.setIcon(defaultIcon);
 
     // Update selected brewery and open its infoWindow
@@ -301,7 +320,11 @@ let ViewModel = function () {
     self.selectedBrewery(brewery);
     self.selectedBrewery().marker.setIcon(selectedIcon);
     self.selectedBrewery().marker.setAnimation(google.maps.Animation.BOUNCE);
-    setTimeout(function () { self.selectedBrewery().marker.setAnimation(null); }, 100);
+    /* This stops the marker bounce animation after one bounce by setting the
+    animation to null after 100ms. */
+    setTimeout(function () {
+      self.selectedBrewery().marker.setAnimation(null);
+    }, 100);
     setPano(self.selectedBrewery());
   }
 };
@@ -310,4 +333,3 @@ function initApp() {
   initMap();
   ko.applyBindings(new ViewModel());
 };
-window.initApp = initApp;

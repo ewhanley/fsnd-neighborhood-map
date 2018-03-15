@@ -22,35 +22,35 @@ These instructions will explain how to get a copy of this project running on you
 
 2. Download or clone this repository to your machine and navigate to the project directory:
 
-  ```bash
+    ```bash
   
-  > git clone https://github.com/ewhanley/fsnd-neighborhood-map.git
-  > cd fsnd-neighborhood-map
-  ```
+    > git clone https://github.com/ewhanley/fsnd-neighborhood-map.git
+    > cd fsnd-neighborhood-map
+    ```
   
- 3. Install the required dependencies by typing:
+3. Install the required dependencies by typing:
  
-  ```bash
+    ```bash
   
-  > npm init
-  ```
+    > npm init
+    ```
   
 4. To open the project locally, you have two options:
   1. Build the project by typing:
   
-    ```bash
+      ```bash
     
-    > npm run build
-    ```
+      > npm run build
+      ```
     
     Then open ```dist/index.html```.
   
   2. Run the app locally with a development server that provides live reloading. Type:
   
-    ```bash
+      ```bash
     
-    > npm start
-    ```
+      > npm start
+      ```
     
     and visit [http://localhost:8080/](http://localhost:8080/).
 

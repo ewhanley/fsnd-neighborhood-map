@@ -155,6 +155,20 @@ function setPano(brewery) {
   });
 }
 
+function breweryFSCallback(brewery, venueData) {
+  brewery.rating = venueData.rating;
+  brewery.price = venueData.price.currency.repeat(venueData.price.tier);
+  brewery.ratingColor = '#' + venueData.ratingColor;
+  brewery.url = venueData.url;
+  brewery.tip = '"' + venueData.tips.groups[0].items[0].text + '"';
+  brewery.tipUrl = venueData.tips.groups[0].items[0].canonicalUrl;
+  brewery.fsUrl = venueData.canonicalUrl;
+}
+
+function breweryFSFailCallback(brewery) {
+  brewery.fsFail = true;
+}
+
 /* Function for getting JSON venue data from Foursquare. In the getJSON .always
 it uses the number of breweries (and thus requests) to determine when to clear
 the loading spinner overlay. */
@@ -184,18 +198,13 @@ function getFourSquareData(brewery) {
   });
   venueDetails.done(function (data) {
     let venueData = data.response.venue;
-    brewery.rating = venueData.rating;
-    brewery.price = venueData.price.currency.repeat(venueData.price.tier);
-    brewery.ratingColor = '#' + venueData.ratingColor;
-    brewery.url = venueData.url;
-    brewery.tip = '"' + venueData.tips.groups[0].items[0].text + '"';
-    brewery.tipUrl = venueData.tips.groups[0].items[0].canonicalUrl;
-    brewery.fsUrl = venueData.canonicalUrl;
+    breweryFSCallback(brewery, venueData);
+
   }).fail(function () {
     console.log('Failed to get data for ' +
       brewery.name +
       ' from foursquare.');
-    brewery.fsFail = true;
+    breweryFSFailCallback(brewery);
   }).always(function () {
     /* This clears the loading spinner overlay after the last request completes
     whether successful or not. */
@@ -218,10 +227,8 @@ let ViewModel = function () {
   });
 
   for (let i = 0; i < self.initialList().length; i++) {
-    (function (i) { // protects async getJSON requests in loop
-      let brewery = self.initialList()[i];
-      getFourSquareData(brewery);
-    })(i);
+    let brewery = self.initialList()[i];
+    getFourSquareData(brewery);
   }
 
   // Extend map bounds to encompass all markers

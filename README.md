@@ -32,7 +32,7 @@ These instructions will explain how to get a copy of this project running on you
  
     ```bash
   
-    > npm init
+    > npm install
     ```
   
 4. To open the project locally, you have two options:

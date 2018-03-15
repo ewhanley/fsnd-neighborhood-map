@@ -57,7 +57,7 @@ function initMap() {
 
   selectedIcon = {
     url: yellowIcon
-  }
+  };
 
   /* This ensures that the map stays centered wherever the user last centered
   it. Solution found here:
@@ -178,7 +178,7 @@ function getFourSquareData(brewery) {
       client_id: fsClientID,
       client_secret: fsClientSecret,
       v: '20180201'
-    }
+    };
     url += $.param(params);
     return $.getJSON(url);
   });
@@ -200,7 +200,7 @@ function getFourSquareData(brewery) {
     /* This clears the loading spinner overlay after the last request completes
     whether successful or not. */
     requestCount--;
-    if (requestCount == 0) {
+    if (requestCount === 0) {
       $('.overlay').hide();
     }
   });
@@ -264,7 +264,7 @@ let ViewModel = function () {
       filtered.includes(brewery) ? brewery.marker.setVisible(true) :
         brewery.marker.setVisible(false);
     });
-  }
+  };
 
   // Function to toggle marker icon type when selected
   self.toggleInfoWindows = function (filtered) {
@@ -273,7 +273,7 @@ let ViewModel = function () {
         brewery.marker.setIcon(defaultIcon);
       }
     });
-  }
+  };
 
   self.filteredList = ko.computed(function () {
     let filtered = self.initialList().filter(function (brewery) {
@@ -299,17 +299,17 @@ let ViewModel = function () {
     brewery.marker.addListener('click', function () {
       self.toggleSelection(brewery);
     });
-  })
+  });
 
   self.openSlideout = function () {
     slideout.toggle();
-  }
+  };
 
   self.resetMap = function resetMap() {
     map.setZoom(zoom);
     map.setCenter(center);
     map.fitBounds(initBounds);
-  }
+  };
 
   self.toggleSelection = function (brewery) {
     // Reset marker to default for previous selection
@@ -326,10 +326,10 @@ let ViewModel = function () {
       self.selectedBrewery().marker.setAnimation(null);
     }, 100);
     setPano(self.selectedBrewery());
-  }
+  };
 };
 
 function initApp() {
   initMap();
   ko.applyBindings(new ViewModel());
-};
+}

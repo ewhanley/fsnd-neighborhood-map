@@ -10,7 +10,7 @@ This project is the fifth in a series of projects I am completing for Udacity's 
 
 ## Getting Started
 
-These instructions will explain how to get a copy of this project running on your local machine. A live deployment of this project is deployed [here](https://ewhanley.github.io/fsnd-neighborhood-map/).
+These instructions will explain how to get a copy of this project running on your local machine. A live deployment of this project is also hosted [here](https://ewhanley.github.io/fsnd-neighborhood-map/).
 
 ### Prerequisites
 
@@ -56,3 +56,5 @@ These instructions will explain how to get a copy of this project running on you
         and visit [http://localhost:8080/](http://localhost:8080/).
 
 ### Notes
+
+Exploring Missoula's breweries with this app is best experienced on a mobile device that takes advantage of Google Street View's motion tracking feature. This features lets you wander around the breweries on your phone.

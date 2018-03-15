@@ -37,22 +37,22 @@ These instructions will explain how to get a copy of this project running on you
   
 4. To open the project locally, you have two options:
 
-  1. Build the project by typing:
+    1. Build the project by typing:
   
-      ```bash
+        ```bash
     
-      > npm run build
-      ```
+        > npm run build
+        ```
     
-  Then open ```dist/index.html```.
+        Then open ```dist/index.html```.
   
-  2. Run the app locally with a development server that provides live reloading. Type:
+    2. Run the app locally with a development server that provides live reloading. Type:
   
-      ```bash
+        ```bash
     
-      > npm start
-      ```
+        > npm start
+        ```
     
-  and visit [http://localhost:8080/](http://localhost:8080/).
+        and visit [http://localhost:8080/](http://localhost:8080/).
 
 ### Notes

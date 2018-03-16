@@ -6,17 +6,17 @@ import Slideout from 'slideout';
 import './css/styles.css';
 import blueIcon from './img/blue-dot.png';
 import yellowIcon from './img/yellow-dot.png';
-import fsLogo from './img/Powered-by-Foursquare-full-color-300.png';
 import breweryData from './data/data.json';
-/* Register initMap and initApp with window object so they have global
-scope for webpack build. */
+/* Register initMap, initApp, and gmapFail with window object so they have
+global scope for webpack build. */
 window.initMap = initMap;
 window.initApp = initApp;
+window.gmapFail = gmapFail;
 
 const numBreweries = Object.keys(breweryData).length;
 const center = { lat: 46.878718, lng: -113.996586 };
 const zoom = 15;
-// Used to extend bounds when extents
+// Used to extend bounds when filtered to single marker
 const boundExtender = 0.005;
 
 let map;
@@ -26,9 +26,16 @@ let initBounds;
 let bounds;
 let defaultIcon;
 let selectedIcon;
+let requestCount = numBreweries; // Used to hide loading spinner
 const fsClientID = 'T20SKUKOMVZAPRO0UZ1ARLXY2QDSJXJSDDZXHRJFI0ZMGSFP';
 const fsClientSecret = 'HRJ0NJBBHWIQQV3J1QB32CEXRDDFBZDCD3OXP5UMMJBI0BRK';
 const fsHomeUrl = 'https://foursquare.com/';
+
+// Handles cases when google maps API fails to load.
+function gmapFail() {
+  alert('There was a problem retrieving data from the Google Maps API. ' +
+    'Please try refreshing the page.');
+}
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -44,7 +51,6 @@ function initMap() {
       position: google.maps.ControlPosition.LEFT_BOTTOM
     }
   });
-
 
   sv = new google.maps.StreetViewService();
   bounds = new google.maps.LatLngBounds(null);
@@ -109,13 +115,6 @@ let slideout = new Slideout({
 // Brewery object model
 let Brewery = function (data) {
   let self = this;
-  self.rating = '';
-  self.ratingColor = '';
-  self.price = '';
-  self.url = '';
-  self.tip = '';
-  self.tipUrl = '';
-  self.fsUrl = '';
   self.fsHomeUrl = fsHomeUrl;
   self.fsFail = Boolean(false);
   self.name = data.name;
@@ -130,50 +129,12 @@ let Brewery = function (data) {
     animation: google.maps.Animation.DROP,
     optimized: false
   });
+  self.getFourSquareData();
 };
 
-/* This function retrieves the nearest Google Steet View panorama for a given
-location and updates the pano element with it. In the event of no response,
-the pano element is updated to reflect accordingly. */
-function setPano(brewery) {
-  sv.getPanoramaByLocation(brewery.location, 200, function (data, status) {
-    if (status === 'OK') {
-      panorama =
-        new google.maps.StreetViewPanorama(document.getElementById('pano'));
-      panorama.setPano(data.location.pano);
-      panorama.setPov({
-        heading:
-          google.maps.geometry.spherical.computeHeading(data.location.latLng,
-            new google.maps.LatLng(brewery.location)),
-        pitch: 0
-      });
-    }
-    else {
-      document.getElementById('pano').innerHTML =
-        'Street View data not found for this location.';
-    }
-  });
-}
-
-function breweryFSCallback(brewery, venueData) {
-  brewery.rating = venueData.rating;
-  brewery.price = venueData.price.currency.repeat(venueData.price.tier);
-  brewery.ratingColor = '#' + venueData.ratingColor;
-  brewery.url = venueData.url;
-  brewery.tip = '"' + venueData.tips.groups[0].items[0].text + '"';
-  brewery.tipUrl = venueData.tips.groups[0].items[0].canonicalUrl;
-  brewery.fsUrl = venueData.canonicalUrl;
-}
-
-function breweryFSFailCallback(brewery) {
-  brewery.fsFail = true;
-}
-
-/* Function for getting JSON venue data from Foursquare. In the getJSON .always
-it uses the number of breweries (and thus requests) to determine when to clear
-the loading spinner overlay. */
-let requestCount = numBreweries;
-function getFourSquareData(brewery) {
+/* Method for getting JSON venue data from Foursquare. */
+Brewery.prototype.getFourSquareData = function () {
+  let brewery = this;
   let url = 'https://api.foursquare.com/v2/venues/search?';
   let params = {
     ll: brewery.location.lat + ',' + brewery.location.lng,
@@ -198,19 +159,48 @@ function getFourSquareData(brewery) {
   });
   venueDetails.done(function (data) {
     let venueData = data.response.venue;
-    breweryFSCallback(brewery, venueData);
+    brewery.rating = venueData.rating;
+    brewery.price = venueData.price.currency.repeat(venueData.price.tier);
+    brewery.ratingColor = '#' + venueData.ratingColor;
+    brewery.url = venueData.url;
+    brewery.tip = venueData.tips.groups[0].items[0].text;
+    brewery.tipUrl = venueData.tips.groups[0].items[0].canonicalUrl;
+    brewery.fsUrl = venueData.canonicalUrl;
 
   }).fail(function () {
     console.log('Failed to get data for ' +
       brewery.name +
       ' from foursquare.');
-    breweryFSFailCallback(brewery);
+    brewery.fsFail = true;
   }).always(function () {
     /* This clears the loading spinner overlay after the last request completes
     whether successful or not. */
     requestCount--;
     if (requestCount === 0) {
       $('.overlay').hide();
+    }
+  });
+}
+
+/* This function retrieves the nearest Google Steet View panorama for a given
+location and updates the pano element with it. In the event of no response,
+the pano element is updated to reflect accordingly. */
+function setPano(brewery) {
+  sv.getPanoramaByLocation(brewery.location, 200, function (data, status) {
+    if (status === 'OK') {
+      panorama =
+        new google.maps.StreetViewPanorama(document.getElementById('pano'));
+      panorama.setPano(data.location.pano);
+      panorama.setPov({
+        heading:
+          google.maps.geometry.spherical.computeHeading(data.location.latLng,
+            new google.maps.LatLng(brewery.location)),
+        pitch: 0
+      });
+    }
+    else {
+      document.getElementById('pano').innerHTML =
+        'Street View data not found for this location.';
     }
   });
 }
@@ -222,14 +212,9 @@ let ViewModel = function () {
   self.visibleMarkers = ko.observableArray([]);
 
   // Construct brewery objects
-  Object.keys(breweryData).forEach(function (key) {
+  Object.keys(breweryData).forEach(function (key, index) {
     self.initialList().push(new Brewery(breweryData[key]));
   });
-
-  for (let i = 0; i < self.initialList().length; i++) {
-    let brewery = self.initialList()[i];
-    getFourSquareData(brewery);
-  }
 
   // Extend map bounds to encompass all markers
   self.initialList().forEach(function (brewery) {
@@ -254,7 +239,7 @@ let ViewModel = function () {
      https://jsfiddle.net/SittingFox/nr8tr5oo/ */
     google.maps.event.addListener(self.infoWindow, 'domready', function () {
       if (!isInfoWindowLoaded) {
-        ko.applyBindings(self, $("#info-window")[0]);
+        ko.applyBindings(self, $('#info-window')[0]);
         isInfoWindowLoaded = true;
       }
     });

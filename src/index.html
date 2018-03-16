@@ -39,7 +39,7 @@
 
   <main id="panel">
     <header class="page-header">
-      <img class="toggle-button" src='slideout-toggle.svg' data-bind="click: openSlideout">
+      <img class="toggle-button" src="slideout-toggle.svg" data-bind="click: openSlideout">
       <h2>Brewery Explorer</h2>
     </header>
     <div id="map-container">
@@ -65,13 +65,14 @@
       <a target="_blank" data-bind="attr: {href: tipUrl }, text: tip">-</a>
     </div>
     <a target="_blank" data-bind="attr: {href: fsHomeUrl }">
-    <div class="fs-logo"><img class='fs-img' src='Powered-by-Foursquare-full-color-300.png'></div>
+    <div class="fs-logo"><img class="fs-img" src="Powered-by-Foursquare-full-color-300.png"></div>
     </a>
   </div>
   </script>
 
   <script src="./bundle.js"></script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjQPtui4scb0Ip9PLymfXy1Zs_RqqOkNw&v=3&callback=initApp"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjQPtui4scb0Ip9PLymfXy1Zs_RqqOkNw&v=3&callback=initApp"
+    onerror="gmapFail()"></script>
 
 </body>
 

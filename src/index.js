@@ -180,7 +180,7 @@ Brewery.prototype.getFourSquareData = function () {
       $('.overlay').hide();
     }
   });
-}
+};
 
 /* This function retrieves the nearest Google Steet View panorama for a given
 location and updates the pano element with it. In the event of no response,
